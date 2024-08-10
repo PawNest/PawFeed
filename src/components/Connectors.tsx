@@ -1,5 +1,6 @@
 import { ConnectorConfig } from "../types/ConnectorConfig";
 import { FeedbackData } from "../types/Feedback";
+import { retryRequest } from "../utils";
 
 export interface Connector {
   name: string;
@@ -24,7 +25,55 @@ class DiscordConnector implements Connector {
       throw new Error("Invalid Discord configuration");
     }
     // Implement Discord submission logic here using config.webhookUrl
-    console.log("Submitting to Discord:", data, "Config:", config);
+    console.debug("Submitting to Discord:", data, "Config:", config);
+
+    const { name, email, feedback, rating } = data;
+
+    const embedColor = rating
+      ? Math.floor(((rating - 1) / 4) * 16777215)
+      : 0x7289da; // Color based on rating
+
+    const payload = {
+      embeds: [
+        {
+          title: "New Feedback Received",
+          color: embedColor,
+          fields: [
+            { name: "Name", value: name || "Anonymous", inline: true },
+            { name: "Email", value: email || "Not provided", inline: true },
+            {
+              name: "Rating",
+              value: rating ? `${rating}/5` : "Not provided",
+              inline: true,
+            },
+            { name: "Feedback", value: feedback || "No feedback provided" },
+          ],
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    };
+
+    try {
+      await retryRequest(async () => {
+        const response = await fetch(config.webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `Request Failed! status: ${response.status}; statusText: ${response.statusText}`
+          );
+        }
+      });
+      console.debug("Feedback submitted to Discord successfully");
+    } catch (error) {
+      console.error("Error submitting feedback to Discord: ", error);
+      throw new Error("Failed to submit feedback to Discord");
+    }
   }
 }
 
