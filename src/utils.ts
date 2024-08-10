@@ -29,3 +29,25 @@ export const DefaultFeedbackWidgetProps = {
     fontSize: 14,
   },
 };
+
+export const wait = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+export async function retryRequest<T>(
+  fn: () => Promise<T>,
+  retries: number = 3,
+  delay: number = 200,
+  timeout: number = 1000
+): Promise<T> {
+  try {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    const result = await fn();
+    clearTimeout(id);
+    return result;
+  } catch (err) {
+    if (retries <= 0) throw err;
+    await wait(delay);
+    return retryRequest(fn, retries - 1, delay * 2);
+  }
+}
