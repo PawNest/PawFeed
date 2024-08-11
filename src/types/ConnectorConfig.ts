@@ -1,7 +1,7 @@
 export interface ConnectorConfig {
   slack?: {
-    apiKey: string;
-    channelId: string;
+    token: string;
+    channel: string;
   };
   discord?: {
     webhookUrl: string;
