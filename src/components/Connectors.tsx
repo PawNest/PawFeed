@@ -10,11 +10,80 @@ export interface Connector {
 class SlackConnector implements Connector {
   name = "slack";
   async submit(data: FeedbackData, config: ConnectorConfig["slack"]) {
-    if (!config || !config.apiKey || !config.channelId) {
+    if (!config || !config.token || !config.channel) {
       throw new Error("Invalid Slack configuration");
     }
     // Implement Slack submission logic here using config.apiKey and config.channelId
-    console.log("Submitting to Slack:", data, "Config:", config);
+    console.debug("Submitting to Slack:", data, "Config:", config);
+
+    const { name, email, feedback, rating } = data;
+    const body = `channel=${config.channel}&blocks=${JSON.stringify([
+      {
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: "New Feedback Received",
+          emoji: true,
+        },
+      },
+      {
+        type: "section",
+        fields: [
+          {
+            type: "mrkdwn",
+            text: `*Name:*\n${name || "Anonymous"}`,
+          },
+          {
+            type: "mrkdwn",
+            text: `*Email:*\n${email || "Not provided"}`,
+          },
+        ],
+      },
+      {
+        type: "section",
+        fields: [
+          {
+            type: "mrkdwn",
+            text: `*Rating:*\n${rating ? `${rating}/5` : "Not provided"}`,
+          },
+        ],
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*Feedback:*\n${feedback || "No feedback provided"}`,
+        },
+      },
+    ])}&token=${config.token}`;
+
+    try {
+      await retryRequest(async () => {
+        const response = await fetch("https://slack.com/api/chat.postMessage", {
+          method: "POST",
+          body: new URLSearchParams(body).toString(), // Convert the payload to a URL-encoded string
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded", // Set the content type
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `Slack API Error! status: ${response.status}; statusText: ${response.statusText}`
+          );
+        } else {
+          const data = await response.json();
+          if (!data.ok) {
+            throw new Error("Slack API error: " + data.error);
+          }
+        }
+      });
+
+      console.log("Feedback submitted to Slack successfully");
+    } catch (error) {
+      console.error("Error submitting feedback to Slack:", error);
+      throw new Error("Failed to submit feedback to Slack");
+    }
   }
 }
 
@@ -29,9 +98,29 @@ class DiscordConnector implements Connector {
 
     const { name, email, feedback, rating } = data;
 
-    const embedColor = rating
-      ? Math.floor(((rating - 1) / 4) * 16777215)
-      : 0x7289da; // Color based on rating
+    // Color based on rating
+    let embedColor;
+
+    switch (rating) {
+      case 1:
+        embedColor = 0xff0000; // Red for 1 star
+        break;
+      case 2:
+        embedColor = 0xffa500; // Orange for 2 stars
+        break;
+      case 3:
+        embedColor = 0xffff00; // Yellow for 3 stars
+        break;
+      case 4:
+        embedColor = 0x90ee90; // Light Green for 4 stars
+        break;
+      case 5:
+        embedColor = 0x008000; // Green for 5 stars
+        break;
+      default:
+        embedColor = 0x7289da; // Default Discord blue color if no rating or invalid rating
+        break;
+    }
 
     const payload = {
       embeds: [
@@ -65,7 +154,7 @@ class DiscordConnector implements Connector {
 
         if (!response.ok) {
           throw new Error(
-            `Request Failed! status: ${response.status}; statusText: ${response.statusText}`
+            `Discord API Error! status: ${response.status}; statusText: ${response.statusText}`
           );
         }
       });
