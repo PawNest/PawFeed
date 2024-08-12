@@ -28,6 +28,8 @@ export const WidgetContainer = styled.div<WidgetContainerProps>`
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 `;
 
 interface FeedbackButtonContainerProps {
@@ -122,6 +124,10 @@ export const ButtonContainer = styled.div`
   justify-content: space-between;
   margin-top: 10px;
   gap: 10px;
+
+  @media (max-width: 150px) {
+    flex-direction: column;
+  }
 `;
 
 export const CancelButton = styled.button`
@@ -150,4 +156,19 @@ export const ThankYouContainer = styled.div`
   align-items: center;
   justify-content: center;
   height: 100%;
+`;
+
+export const Footer = styled.a`
+  text-align: center;
+  padding-top: 10px;
+  margin-top: auto;
+  font-size: 0.8em;
+  color: ${({ theme }) => theme.textColor};
+  opacity: 0.7;
+  text-decoration: none;
+
+  &:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
 `;

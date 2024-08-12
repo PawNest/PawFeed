@@ -10,6 +10,7 @@ import {
   ThankYouContainer,
   FeedbackButtonContainer,
   FeedbackButton,
+  Footer,
 } from "../styles/styles";
 import StarRating from "./StarRating";
 import * as z from "zod";
@@ -257,6 +258,13 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
               </ButtonContainer>
             </Form>
           )}
+          <Footer
+            href="https://github.com/PawNest/PawFeed"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Powered by PawFeed
+          </Footer>
         </WidgetContainer>
       ) : (
         <FeedbackButtonContainer position={position}>
