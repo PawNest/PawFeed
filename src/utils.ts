@@ -1,3 +1,5 @@
+import { FeedbackWidgetProps } from "./types/FeedbackWidgetProps";
+
 export const customErrorMessages: Record<string, string> = {
   "String must contain at least 1 character(s)": "Field cannot be empty.",
   "Invalid email": "Please enter a valid email address.",
@@ -5,7 +7,7 @@ export const customErrorMessages: Record<string, string> = {
     "Please Keep it brief! Max 500 characters allowed.",
 };
 
-export const DefaultFeedbackWidgetProps = {
+export const defaultFeedbackWidgetProps: FeedbackWidgetProps = {
   position: { bottom: 20, right: 20 },
   requiredFields: ["name", "email", "feedback"],
   optionalFields: ["rating"],
@@ -31,6 +33,32 @@ export const DefaultFeedbackWidgetProps = {
   },
   draggable: false,
 };
+
+export function createFeedbackWidgetProps(
+  customProps: Partial<FeedbackWidgetProps>
+): FeedbackWidgetProps {
+  return {
+    ...defaultFeedbackWidgetProps,
+    ...customProps,
+    // Merging nested objects
+    position: {
+      ...defaultFeedbackWidgetProps.position,
+      ...customProps.position,
+    },
+    buttonOptions: {
+      ...defaultFeedbackWidgetProps.buttonOptions,
+      ...customProps.buttonOptions,
+    },
+    tooltipOptions: {
+      ...defaultFeedbackWidgetProps.tooltipOptions,
+      ...customProps.tooltipOptions,
+    },
+    widgetOptions: {
+      ...defaultFeedbackWidgetProps.widgetOptions,
+      ...customProps.widgetOptions,
+    },
+  };
+}
 
 export const wait = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));

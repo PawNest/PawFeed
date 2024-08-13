@@ -5,7 +5,7 @@ interface FeedbackButtonContainerProps {
     right: number;
     bottom: number;
   };
-  isDraggable: boolean;
+  isDraggable?: boolean;
 }
 
 export const FeedbackButtonContainer = styled.div.attrs<FeedbackButtonContainerProps>(
@@ -24,11 +24,9 @@ export const FeedbackButtonContainer = styled.div.attrs<FeedbackButtonContainerP
   justify-content: center;
 `;
 
-interface FeedbackButtonProps {
-  size: string | number;
-}
-
-export const FeedbackButton = styled.button<FeedbackButtonProps>`
+export const FeedbackButton = styled.button<{
+  size?: "small" | "medium" | "large" | number;
+}>`
   background-color: ${(props) => props.theme.buttonBackgroundColor};
   color: ${(props) => props.theme.buttonTextColor};
   padding: ${(props) =>

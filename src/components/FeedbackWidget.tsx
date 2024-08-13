@@ -16,41 +16,20 @@ import {
   ButtonContainer,
 } from "../styles/form";
 import StarRating from "./StarRating";
-import * as z from "zod";
 import { ThemeProvider } from "styled-components";
 import { getTheme } from "../styles/theme";
-import { TooltipComponent } from "./ToolTipComponent";
-import { customErrorMessages, DefaultFeedbackWidgetProps } from "../utils";
+import { createFeedbackWidgetProps } from "../utils";
 import { FeedbackWidgetProps } from "../types/FeedbackWidgetProps";
-import { FeedbackData } from "../types/Feedback";
-import { submitFeedback } from "./Connectors";
 import FeedbackButton from "./FeedbackButton";
+import { useFeedbackForm } from "../hooks/useFeedbackForm";
+import { useWidgetPosition } from "../hooks/useWidgetPosition";
 
 const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
-  props: FeedbackWidgetProps
+  feedbackWidgetProps: FeedbackWidgetProps
 ) => {
+  const props = createFeedbackWidgetProps(feedbackWidgetProps);
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState<FeedbackData>({
-    name: props.name || "",
-    email: props.email || "",
-    feedback: "",
-    rating: 0,
-  });
   const [showThankYou, setShowThankYou] = useState(false);
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof FeedbackData, string>>
-  >({});
-
-  const initialPosition = props.position
-    ? props.position
-    : DefaultFeedbackWidgetProps.position;
-
-  const draggable = props.draggable
-    ? props.draggable
-    : DefaultFeedbackWidgetProps.draggable;
-
-  const [widgetPosition, setWidgetPosition] = useState(initialPosition);
-  const [buttonPosition, setButtonPosition] = useState(initialPosition);
   const widgetRef = useRef<HTMLDivElement>(null);
 
   let dragStartX: number;
@@ -59,7 +38,7 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
   let initialBottom: number;
 
   const onMouseDown = (e: React.MouseEvent) => {
-    if (draggable) {
+    if (props.draggable) {
       e.preventDefault();
       dragStartX = e.clientX;
       dragStartY = e.clientY;
@@ -98,202 +77,55 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
     document.removeEventListener("mouseup", onMouseUp);
   };
 
-  const calculateWidgetPosition = () => {
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-    const buttonWidth = 100;
-    const buttonHeight = 100;
-    const widgetWidth = widgetOptions?.width || 300; // Default width
-    const widgetHeight = widgetOptions?.height || 450; // Default height
-
-    let newRight: number;
-    let newBottom: number;
-
-    // Horizontal positioning
-    if (widgetPosition.right + buttonWidth + widgetWidth <= screenWidth) {
-      // Enough space to open on left
-      newRight = widgetPosition.right + 10; // + buttonWidth + 10; // 10px gap
-    } else if (widgetPosition.right >= widgetWidth) {
-      // + 10) {
-      // Enough space to open on right
-      newRight = widgetPosition.right + 10 - widgetWidth; // - 10; // 10px gap
-    } else {
-      // Not enough space on either side, center it horizontally
-      newRight = Math.max(
-        10,
-        Math.min(
-          screenWidth - widgetWidth - 10,
-          (screenWidth - widgetWidth) / 2
-        )
-      );
-    }
-
-    // Vertical positioning
-    if (widgetPosition.bottom + buttonHeight + widgetHeight <= screenHeight) {
-      // Enough space below
-      newBottom = widgetPosition.bottom + 10; // + buttonHeight + 10; // 10px gap
-    } else if (widgetPosition.bottom >= widgetHeight) {
-      // + 10) {
-      // Enough space above
-      newBottom = widgetPosition.bottom + 10 - widgetHeight; // - 10; // 10px gap
-    } else {
-      // Not enough space above or below, center it vertically
-      newBottom = Math.max(
-        10,
-        Math.min(
-          screenHeight - widgetHeight - 10,
-          (screenHeight - widgetHeight) / 2
-        )
-      );
-    }
-
-    return { right: newRight, bottom: newBottom };
-  };
-
-  // Use this function when opening the widget
-  const handleOpenWidget = () => {
-    setButtonPosition(widgetPosition); // Store the current button position
-    const updatedWidgetPosition = calculateWidgetPosition();
-    setWidgetPosition(updatedWidgetPosition);
-    setIsOpen(true);
-  };
-
-  const handleCloseWidget = () => {
-    setIsOpen(false);
-    setWidgetPosition(buttonPosition); // Restore the button position
-  };
-
-  const handlePositionChange = (bottom: number, right: number) => {
-    const newPosition = { bottom, right };
-    setWidgetPosition(newPosition);
-  };
-
-  useEffect(() => {
-    setWidgetPosition(initialPosition);
-    setButtonPosition(initialPosition);
-  }, [initialPosition]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    // Clear previous errors
-    setErrors({});
-
-    const validationResult = feedbackSchema.safeParse(formData);
-
-    if (validationResult.success) {
-      try {
-        if (props.onSubmit) {
-          await props.onSubmit(validationResult.data);
-        } else if (props.connector) {
-          await submitFeedback(
-            props.connector.name,
-            validationResult.data,
-            props.connector.config
-          );
-        } else {
-          // do nothing
-          console.error("No submit function or connector provided");
-        }
-        setShowThankYou(true);
-        setFormData({
-          name: props.name || "",
-          email: props.email || "",
-          feedback: "",
-          rating: 0,
-        });
-      } catch (error) {
-        console.error("Error submitting feedback:", error);
-        // Handle submission error (e.g., show an error message to the user)
-      }
-    } else {
-      const newErrors: Partial<Record<keyof FeedbackData, string>> = {};
-
-      validationResult.error.errors.forEach((error) => {
-        if (error.path.length > 0) {
-          const fieldName = error.path[0] as keyof FeedbackData;
-          newErrors[fieldName] = customErrorMessages[error.message]
-            ? customErrorMessages[error.message]
-            : error.message;
-        }
-      });
-
-      setErrors(newErrors);
-
-      //console.error("Form validation error:", validationResult.error);
-    }
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-  };
-
-  const handleRatingChange = (rating: number) => {
-    setFormData((prevData) => ({ ...prevData, rating }));
-  };
-
   const closeForm = () => {
     handleCloseWidget();
     setShowThankYou(false);
-    setFormData({
-      name: props.name || "",
-      email: props.email || "",
-      feedback: "",
-      rating: 0,
-    });
   };
 
-  const requiredFields = props.requiredFields
-    ? props.requiredFields
-    : DefaultFeedbackWidgetProps.requiredFields;
-
-  const optionalFields = props.optionalFields
-    ? props.optionalFields
-    : DefaultFeedbackWidgetProps.optionalFields;
-
-  const feedbackSchema = z.object({
-    name: requiredFields.includes("name")
-      ? z.string().min(1)
-      : z.string().optional(),
-    email: requiredFields.includes("email")
-      ? z.string().email()
-      : z.string().email().optional(),
-    feedback: requiredFields.includes("feedback")
-      ? z.string().min(1).max(500)
-      : z.string().optional(),
-    rating: requiredFields.includes("rating")
-      ? z.number().min(1).max(5)
-      : z.number().optional(),
-  });
-
-  const theme = props.theme ? props.theme : DefaultFeedbackWidgetProps.theme;
-
   const currentTheme =
-    theme === "light"
+    props.theme === "light"
       ? getTheme(false)
-      : theme === "dark"
+      : props.theme === "dark"
       ? getTheme(true)
       : window.matchMedia("(prefers-color-scheme: dark)").matches
       ? getTheme(true)
       : getTheme(false);
 
-  const widgetOptions = {
-    ...DefaultFeedbackWidgetProps.widgetOptions,
-    ...props.widgetOptions,
-  };
+  const {
+    widgetPosition,
+    setWidgetPosition,
+    handleOpenWidget,
+    handleCloseWidget,
+    handlePositionChange,
+  } = useWidgetPosition(
+    setIsOpen,
+    {
+      bottom: props?.position?.bottom || 20,
+      right: props?.position?.right || 20,
+    },
+    {
+      width: props?.widgetOptions?.width,
+      height: props?.widgetOptions?.height,
+    }
+  );
 
-  const tooltipOptions = {
-    ...DefaultFeedbackWidgetProps.tooltipOptions,
-    ...props.tooltipOptions,
-  };
-
-  const buttonOptions = {
-    ...DefaultFeedbackWidgetProps.buttonOptions,
-    ...props.buttonOptions,
-  };
+  const {
+    formData,
+    errors,
+    handleInputChange,
+    handleRatingChange,
+    handleSubmit,
+  } = useFeedbackForm(
+    {
+      connector: props.connector,
+      onSubmit: props.onSubmit,
+      name: props.name,
+      email: props.email,
+      requiredFields: props.requiredFields,
+      optionalFields: props.optionalFields,
+    },
+    setShowThankYou
+  );
 
   return (
     <ThemeProvider theme={currentTheme}>
@@ -301,9 +133,9 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
         {isOpen ? (
           <WidgetContainer
             position={widgetPosition}
-            height={widgetOptions.height}
-            width={widgetOptions.width}
-            fontSize={widgetOptions.fontSize}
+            height={props.widgetOptions?.height}
+            width={props.widgetOptions?.width}
+            fontSize={props.widgetOptions?.fontSize}
           >
             {showThankYou ? (
               <ThankYouContainer>
@@ -317,25 +149,21 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
                 <WidgetHeader
                   ref={widgetRef}
                   onMouseDown={onMouseDown}
-                  isDraggable={draggable}
+                  isDraggable={props.draggable}
                 >
-                  {widgetOptions.showTitle ? (
+                  {props.widgetOptions?.showTitle ? (
                     <h2 style={{ color: currentTheme.textColor }}>
-                      {props.title
-                        ? props.title
-                        : DefaultFeedbackWidgetProps.title}
+                      {props.title}
                     </h2>
                   ) : null}
-                  {widgetOptions.showDescription ? (
+                  {props.widgetOptions?.showDescription ? (
                     <p style={{ color: currentTheme.textColor }}>
-                      {props.description
-                        ? props.description
-                        : DefaultFeedbackWidgetProps.description}
+                      {props.description}
                     </p>
                   ) : null}
                 </WidgetHeader>
-                {requiredFields.includes("name") ||
-                optionalFields.includes("name") ? (
+                {props.requiredFields?.includes("name") ||
+                props.optionalFields?.includes("name") ? (
                   <>
                     <Input
                       type="text"
@@ -351,8 +179,8 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
                     )}
                   </>
                 ) : null}
-                {requiredFields.includes("email") ||
-                optionalFields.includes("email") ? (
+                {props.requiredFields?.includes("email") ||
+                props.optionalFields?.includes("email") ? (
                   <>
                     <Input
                       type="email"
@@ -368,8 +196,8 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
                     )}
                   </>
                 ) : null}
-                {requiredFields.includes("feedback") ||
-                optionalFields.includes("feedback") ? (
+                {props.requiredFields?.includes("feedback") ||
+                props.optionalFields?.includes("feedback") ? (
                   <>
                     <TextArea
                       name="feedback"
@@ -384,8 +212,8 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
                     )}
                   </>
                 ) : null}
-                {requiredFields.includes("rating") ||
-                optionalFields.includes("rating") ? (
+                {props.requiredFields?.includes("rating") ||
+                props.optionalFields?.includes("rating") ? (
                   <StarRating
                     rating={formData.rating ? formData.rating : 0}
                     onRatingChange={handleRatingChange}
@@ -410,10 +238,10 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
         ) : (
           <FeedbackButton
             position={widgetPosition}
-            buttonOptions={buttonOptions}
-            tooltipOptions={tooltipOptions}
+            buttonOptions={props.buttonOptions}
+            tooltipOptions={props.tooltipOptions}
             setIsOpen={handleOpenWidget}
-            draggable={draggable}
+            draggable={props.draggable}
             onPositionChange={handlePositionChange}
           />
         )}

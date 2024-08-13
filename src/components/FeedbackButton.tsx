@@ -97,7 +97,7 @@ const FeedbackButton: React.FC<FeedbackButtonProps> = ({
       position={position}
       isDraggable={draggable}
     >
-      {tooltipOptions.showTooltip ? (
+      {tooltipOptions?.showTooltip ? (
         <TooltipComponent
           text={tooltipOptions.tooltipMessage}
           position={tooltipOptions.position}
@@ -106,13 +106,13 @@ const FeedbackButton: React.FC<FeedbackButtonProps> = ({
           <StyledFeedbackButton
             onClick={handleClick}
             onMouseDown={onMouseDown}
-            size={buttonOptions.size}
+            size={buttonOptions?.size}
           >
             Feedback
           </StyledFeedbackButton>
         </TooltipComponent>
       ) : (
-        <StyledFeedbackButton onClick={handleClick} size={buttonOptions.size}>
+        <StyledFeedbackButton onClick={handleClick} size={buttonOptions?.size}>
           Feedback
         </StyledFeedbackButton>
       )}

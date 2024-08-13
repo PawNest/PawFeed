@@ -7,10 +7,10 @@ interface WidgetContainerProps {
   };
   height?: number;
   width?: number;
-  fontSize: number;
+  fontSize?: number;
 }
 
-export const WidgetHeader = styled.div<{ isDraggable: boolean }>`
+export const WidgetHeader = styled.div<{ isDraggable?: boolean }>`
   cursor: ${(props) => (props.isDraggable ? "move" : "default")};
 `;
 
@@ -26,7 +26,7 @@ export const WidgetContainer = styled.div.attrs<WidgetContainerProps>(
 )`
   position: absolute;
   background-color: ${(props) => props.theme.backgroundColor};
-  font-size: ${(props) => props.fontSize + "px"};
+  font-size: ${(props) => (props.fontSize ? props.fontSize + "px" : "14px")};
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);

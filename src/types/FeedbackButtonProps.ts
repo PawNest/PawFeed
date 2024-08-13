@@ -1,15 +1,15 @@
 export interface FeedbackButtonProps {
   position: { bottom: number; right: number };
-  buttonOptions: {
-    size: string | number;
+  buttonOptions?: {
+    size?: "small" | "medium" | "large" | number;
   };
-  tooltipOptions: {
-    showTooltip: boolean;
-    position: string;
-    tooltipMessage: string;
-    tooltipFontSize: number;
+  tooltipOptions?: {
+    showTooltip?: boolean;
+    position?: "top" | "bottom" | "left" | "right";
+    tooltipMessage?: string;
+    tooltipFontSize?: number;
   };
   setIsOpen: (isOpen: boolean) => void;
-  draggable: boolean;
+  draggable?: boolean;
   onPositionChange: (bottom: number, right: number) => void;
 }
