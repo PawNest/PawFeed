@@ -1,28 +1,31 @@
 import styled from "styled-components";
 
 interface WidgetContainerProps {
-  position?: {
-    top?: string;
-    right?: string;
-    bottom?: string;
-    left?: string;
+  position: {
+    //top?: string;
+    right: number;
+    bottom: number;
+    //left?: string;
   };
   height?: number;
   width?: number;
-  fontSize?: number;
+  fontSize: number;
+  isDraggable: boolean;
 }
 
-export const WidgetContainer = styled.div<WidgetContainerProps>`
-  position: fixed;
-  ${(props) =>
-    props.position &&
-    `top: ${props.position.top};
-     right: ${props.position.right};
-     bottom: ${props.position.bottom};
-     left: ${props.position.left};`}
+export const WidgetContainer = styled.div.attrs<WidgetContainerProps>(
+  (props) => ({
+    style: {
+      bottom: `${props.position.bottom}px`,
+      right: `${props.position.right}px`,
+      height: props.height ? `${props.height}px` : "auto",
+      width: props.width ? `${props.width}px` : "auto",
+      cursor: props.isDraggable ? "move" : "default",
+    },
+  })
+)`
+  position: absolute;
   background-color: ${(props) => props.theme.backgroundColor};
-  height: ${(props) => (props.height ? props.height + "px" : "auto")};
-  width: ${(props) => (props.width ? props.width + "px" : "auto")};
   font-size: ${(props) => props.fontSize + "px"};
   padding: 20px;
   border-radius: 8px;
@@ -30,29 +33,34 @@ export const WidgetContainer = styled.div<WidgetContainerProps>`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+
+  pointer-events: auto;
 `;
 
 interface FeedbackButtonContainerProps {
-  position?: {
-    top?: string;
-    right?: string;
-    bottom?: string;
-    left?: string;
+  position: {
+    //top?: string;
+    right: number;
+    bottom: number;
+    //left?: string;
   };
+  isDraggable: boolean;
 }
 
-export const FeedbackButtonContainer = styled.div<FeedbackButtonContainerProps>`
-  position: fixed;
-  ${(props) =>
-    props.position &&
-    `top: ${props.position.top};
-     right: ${props.position.right};
-     bottom: ${props.position.bottom};
-     left: ${props.position.left};`}
+export const FeedbackButtonContainer = styled.div.attrs<FeedbackButtonContainerProps>(
+  (props) => ({
+    style: {
+      bottom: `${props.position.bottom}px`,
+      right: `${props.position.right}px`,
+      cursor: props.isDraggable ? "move" : "pointer",
+    },
+  })
+)`
+  position: absolute;
+  pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 `;
 
 interface FeedbackButtonProps {
@@ -73,7 +81,6 @@ export const FeedbackButton = styled.button<FeedbackButtonProps>`
   border: none;
   border-radius: 4px;
   font-size: inherit;
-  cursor: pointer;
 `;
 
 export const Form = styled.form`
@@ -171,4 +178,19 @@ export const Footer = styled.a`
     opacity: 1;
     text-decoration: underline;
   }
+`;
+
+export const FullScreenContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+`;
+
+export const DraggableWrapper = styled.div`
+  position: absolute;
+  pointer-events: auto;
 `;
