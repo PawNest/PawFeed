@@ -8,10 +8,10 @@ export interface FeedbackWidgetProps {
   };
   onSubmit?: (data: FeedbackData) => Promise<void>;
   position?: {
-    top?: string;
-    right?: string;
-    bottom?: string;
-    left?: string;
+    //top?: string;
+    right: number;
+    bottom: number;
+    //left?: string;
   };
   title?: string;
   description?: string;
@@ -36,4 +36,5 @@ export interface FeedbackWidgetProps {
     width?: number;
     fontSize?: number;
   };
+  draggable?: boolean;
 }

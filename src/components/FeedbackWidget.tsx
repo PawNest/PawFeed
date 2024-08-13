@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   WidgetContainer,
   Form,
@@ -9,8 +9,9 @@ import {
   ButtonContainer,
   ThankYouContainer,
   FeedbackButtonContainer,
-  FeedbackButton,
   Footer,
+  FullScreenContainer,
+  DraggableWrapper,
 } from "../styles/styles";
 import StarRating from "./StarRating";
 import * as z from "zod";
@@ -21,6 +22,7 @@ import { customErrorMessages, DefaultFeedbackWidgetProps } from "../utils";
 import { FeedbackWidgetProps } from "../types/FeedbackWidgetProps";
 import { FeedbackData } from "../types/Feedback";
 import { submitFeedback } from "./Connectors";
+import FeedbackButton from "./FeedbackButton";
 
 const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
   props: FeedbackWidgetProps
@@ -36,6 +38,138 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
   const [errors, setErrors] = useState<
     Partial<Record<keyof FeedbackData, string>>
   >({});
+
+  const initialPosition = props.position
+    ? props.position
+    : DefaultFeedbackWidgetProps.position;
+
+  const draggable = props.draggable
+    ? props.draggable
+    : DefaultFeedbackWidgetProps.draggable;
+
+  const [widgetPosition, setWidgetPosition] = useState(initialPosition);
+  const [buttonPosition, setButtonPosition] = useState(initialPosition);
+  const widgetRef = useRef<HTMLDivElement>(null);
+
+  let dragStartX: number;
+  let dragStartY: number;
+  let initialRight: number;
+  let initialBottom: number;
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (draggable) {
+      e.preventDefault();
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      initialRight = widgetPosition.right || 0;
+      initialBottom = widgetPosition.bottom || 0;
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    }
+  };
+
+  const onMouseMove = (e: MouseEvent) => {
+    const deltaX = e.clientX - dragStartX;
+    const deltaY = e.clientY - dragStartY;
+    const newRight = initialRight - deltaX;
+    const newBottom = initialBottom - deltaY;
+
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const widgetWidth = widgetRef.current?.offsetWidth || 0;
+    const widgetHeight = widgetRef.current?.offsetHeight || 0;
+
+    const maxRight = screenWidth - widgetWidth;
+    const maxBottom = screenHeight - widgetHeight;
+
+    const newPosition = {
+      right: Math.min(Math.max(newRight, 0), maxRight),
+      bottom: Math.min(Math.max(newBottom, 0), maxBottom),
+    };
+
+    setWidgetPosition(newPosition);
+  };
+
+  const onMouseUp = () => {
+    document.removeEventListener("mousemove", onMouseMove);
+    document.removeEventListener("mouseup", onMouseUp);
+  };
+
+  const calculateWidgetPosition = () => {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const buttonWidth = 100;
+    const buttonHeight = 100;
+    const widgetWidth = widgetOptions?.width || 300; // Default width
+    const widgetHeight = widgetOptions?.height || 450; // Default height
+
+    let newRight: number;
+    let newBottom: number;
+
+    // Horizontal positioning
+    if (widgetPosition.right + buttonWidth + widgetWidth <= screenWidth) {
+      // Enough space to open on left
+      newRight = widgetPosition.right + 10; // + buttonWidth + 10; // 10px gap
+    } else if (widgetPosition.right >= widgetWidth) {
+      // + 10) {
+      // Enough space to open on right
+      newRight = widgetPosition.right + 10 - widgetWidth; // - 10; // 10px gap
+    } else {
+      // Not enough space on either side, center it horizontally
+      newRight = Math.max(
+        10,
+        Math.min(
+          screenWidth - widgetWidth - 10,
+          (screenWidth - widgetWidth) / 2
+        )
+      );
+    }
+
+    // Vertical positioning
+    if (widgetPosition.bottom + buttonHeight + widgetHeight <= screenHeight) {
+      // Enough space below
+      newBottom = widgetPosition.bottom + 10; // + buttonHeight + 10; // 10px gap
+    } else if (widgetPosition.bottom >= widgetHeight) {
+      // + 10) {
+      // Enough space above
+      newBottom = widgetPosition.bottom + 10 - widgetHeight; // - 10; // 10px gap
+    } else {
+      // Not enough space above or below, center it vertically
+      newBottom = Math.max(
+        10,
+        Math.min(
+          screenHeight - widgetHeight - 10,
+          (screenHeight - widgetHeight) / 2
+        )
+      );
+    }
+
+    return { right: newRight, bottom: newBottom };
+  };
+
+  // Use this function when opening the widget
+  const handleOpenWidget = () => {
+    setButtonPosition(widgetPosition); // Store the current button position
+    const updatedWidgetPosition = calculateWidgetPosition();
+    setWidgetPosition(updatedWidgetPosition);
+    setIsOpen(true);
+  };
+
+  const handleCloseWidget = () => {
+    setIsOpen(false);
+    setWidgetPosition(buttonPosition); // Restore the button position
+  };
+
+  const handlePositionChange = (bottom: number, right: number) => {
+    const newPosition = { bottom, right };
+    setWidgetPosition(newPosition);
+  };
+
+  useEffect(() => {
+    setWidgetPosition(initialPosition);
+    setButtonPosition(initialPosition);
+  }, [initialPosition]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -100,7 +234,7 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
   };
 
   const closeForm = () => {
-    setIsOpen(false);
+    handleCloseWidget();
     setShowThankYou(false);
     setFormData({
       name: props.name || "",
@@ -149,10 +283,6 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
     ...props.widgetOptions,
   };
 
-  const position = props.position
-    ? props.position
-    : DefaultFeedbackWidgetProps.position;
-
   const tooltipOptions = {
     ...DefaultFeedbackWidgetProps.tooltipOptions,
     ...props.tooltipOptions,
@@ -165,132 +295,155 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
 
   return (
     <ThemeProvider theme={currentTheme}>
-      {isOpen ? (
-        <WidgetContainer
-          position={position}
-          height={widgetOptions.height}
-          width={widgetOptions.width}
-          fontSize={widgetOptions.fontSize}
-        >
-          {showThankYou ? (
-            <ThankYouContainer>
-              <h2 style={{ color: currentTheme.textColor }}>
-                Thank you for your feedback!
-              </h2>
-              <SubmitButton onClick={closeForm}>Close</SubmitButton>
-            </ThankYouContainer>
-          ) : (
-            <Form onSubmit={handleSubmit}>
-              {widgetOptions.showTitle ? (
-                <h2 style={{ color: currentTheme.textColor }}>
-                  {props.title ? props.title : DefaultFeedbackWidgetProps.title}
-                </h2>
-              ) : null}
-              {widgetOptions.showDescription ? (
-                <p style={{ color: currentTheme.textColor }}>
-                  {props.description
-                    ? props.description
-                    : DefaultFeedbackWidgetProps.description}
-                </p>
-              ) : null}
-              {requiredFields.includes("name") ||
-              optionalFields.includes("name") ? (
-                <>
-                  <Input
-                    type="text"
-                    name="name"
-                    placeholder="Enter your name"
-                    value={formData.name || ""}
-                    onChange={handleInputChange}
-                  />
-                  {errors.name && (
-                    <div style={{ color: "red", marginBottom: "10px" }}>
-                      {errors.name}
-                    </div>
-                  )}
-                </>
-              ) : null}
-              {requiredFields.includes("email") ||
-              optionalFields.includes("email") ? (
-                <>
-                  <Input
-                    type="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    value={formData.email || ""}
-                    onChange={handleInputChange}
-                  />
-                  {errors.email && (
-                    <div style={{ color: "red", marginBottom: "10px" }}>
-                      {errors.email}
-                    </div>
-                  )}
-                </>
-              ) : null}
-              {requiredFields.includes("feedback") ||
-              optionalFields.includes("feedback") ? (
-                <>
-                  <TextArea
-                    name="feedback"
-                    placeholder="Share your thoughts and suggestions"
-                    value={formData.feedback}
-                    onChange={handleInputChange}
-                  />
-                  {errors.feedback && (
-                    <div style={{ color: "red", marginBottom: "10px" }}>
-                      {errors.feedback}
-                    </div>
-                  )}
-                </>
-              ) : null}
-              {requiredFields.includes("rating") ||
-              optionalFields.includes("rating") ? (
-                <StarRating
-                  rating={formData.rating ? formData.rating : 0}
-                  onRatingChange={handleRatingChange}
-                />
-              ) : null}
-              <ButtonContainer>
-                <CancelButton type="button" onClick={closeForm}>
-                  Cancel
-                </CancelButton>
-                <SubmitButton type="submit">Submit Feedback</SubmitButton>
-              </ButtonContainer>
-            </Form>
-          )}
-          <Footer
-            href="https://github.com/PawNest/PawFeed"
-            target="_blank"
-            rel="noopener noreferrer"
+      <FullScreenContainer>
+        {/* <Draggable position={dragPosition} onDrag={handleDrag} bounds="parent">
+          <DraggableWrapper> */}
+        {isOpen ? (
+          <WidgetContainer
+            ref={widgetRef}
+            position={widgetPosition}
+            height={widgetOptions.height}
+            width={widgetOptions.width}
+            fontSize={widgetOptions.fontSize}
+            isDraggable={draggable}
+            onMouseDown={onMouseDown}
           >
-            Powered by PawFeed
-          </Footer>
-        </WidgetContainer>
-      ) : (
-        <FeedbackButtonContainer position={position}>
-          {tooltipOptions.showTooltip ? (
-            <TooltipComponent
-              text={tooltipOptions.tooltipMessage}
-              position={tooltipOptions.position}
-              fontSize={tooltipOptions.tooltipFontSize}
+            {showThankYou ? (
+              <ThankYouContainer>
+                <h2 style={{ color: currentTheme.textColor }}>
+                  Thank you for your feedback!
+                </h2>
+                <SubmitButton onClick={closeForm}>Close</SubmitButton>
+              </ThankYouContainer>
+            ) : (
+              <Form onSubmit={handleSubmit}>
+                {widgetOptions.showTitle ? (
+                  <h2 style={{ color: currentTheme.textColor }}>
+                    {props.title
+                      ? props.title
+                      : DefaultFeedbackWidgetProps.title}
+                  </h2>
+                ) : null}
+                {widgetOptions.showDescription ? (
+                  <p style={{ color: currentTheme.textColor }}>
+                    {props.description
+                      ? props.description
+                      : DefaultFeedbackWidgetProps.description}
+                  </p>
+                ) : null}
+                {requiredFields.includes("name") ||
+                optionalFields.includes("name") ? (
+                  <>
+                    <Input
+                      type="text"
+                      name="name"
+                      placeholder="Enter your name"
+                      value={formData.name || ""}
+                      onChange={handleInputChange}
+                    />
+                    {errors.name && (
+                      <div style={{ color: "red", marginBottom: "10px" }}>
+                        {errors.name}
+                      </div>
+                    )}
+                  </>
+                ) : null}
+                {requiredFields.includes("email") ||
+                optionalFields.includes("email") ? (
+                  <>
+                    <Input
+                      type="email"
+                      name="email"
+                      placeholder="Enter your email"
+                      value={formData.email || ""}
+                      onChange={handleInputChange}
+                    />
+                    {errors.email && (
+                      <div style={{ color: "red", marginBottom: "10px" }}>
+                        {errors.email}
+                      </div>
+                    )}
+                  </>
+                ) : null}
+                {requiredFields.includes("feedback") ||
+                optionalFields.includes("feedback") ? (
+                  <>
+                    <TextArea
+                      name="feedback"
+                      placeholder="Share your thoughts and suggestions"
+                      value={formData.feedback}
+                      onChange={handleInputChange}
+                    />
+                    {errors.feedback && (
+                      <div style={{ color: "red", marginBottom: "10px" }}>
+                        {errors.feedback}
+                      </div>
+                    )}
+                  </>
+                ) : null}
+                {requiredFields.includes("rating") ||
+                optionalFields.includes("rating") ? (
+                  <StarRating
+                    rating={formData.rating ? formData.rating : 0}
+                    onRatingChange={handleRatingChange}
+                  />
+                ) : null}
+                <ButtonContainer>
+                  <CancelButton type="button" onClick={closeForm}>
+                    Cancel
+                  </CancelButton>
+                  <SubmitButton type="submit">Submit Feedback</SubmitButton>
+                </ButtonContainer>
+              </Form>
+            )}
+            <Footer
+              href="https://github.com/PawNest/PawFeed"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              <FeedbackButton
-                onClick={() => setIsOpen(true)}
-                size={buttonOptions.size}
-              >
-                Feedback
-              </FeedbackButton>
-            </TooltipComponent>
-          ) : (
-            <FeedbackButton
-              onClick={() => setIsOpen(true)}
-              size={buttonOptions.size}
-            >
-              Feedback
-            </FeedbackButton>
-          )}
-        </FeedbackButtonContainer>
-      )}
+              Powered by PawFeed
+            </Footer>
+          </WidgetContainer>
+        ) : (
+          <FeedbackButton
+            position={widgetPosition}
+            buttonOptions={buttonOptions}
+            tooltipOptions={tooltipOptions}
+            setIsOpen={handleOpenWidget}
+            draggable={draggable}
+            onPositionChange={handlePositionChange}
+          />
+          // <FeedbackButtonContainer
+          //   position={currentPosition}
+          //   isDraggable={draggable}
+          //   onMouseDown={onMouseDown}
+          // >
+          //   {tooltipOptions.showTooltip ? (
+          //     <TooltipComponent
+          //       text={tooltipOptions.tooltipMessage}
+          //       position={tooltipOptions.position}
+          //       fontSize={tooltipOptions.tooltipFontSize}
+          //     >
+          //       <FeedbackButton
+          //         onClick={() => setIsOpen(true)}
+          //         size={buttonOptions.size}
+          //       >
+          //         Feedback
+          //       </FeedbackButton>
+          //     </TooltipComponent>
+          //   ) : (
+          //     <FeedbackButton
+          //       onClick={() => setIsOpen(true)}
+          //       size={buttonOptions.size}
+          //     >
+          //       Feedback
+          //     </FeedbackButton>
+          //   )}
+          // </FeedbackButtonContainer>
+        )}
+        {/* </DraggableWrapper>
+        </Draggable> */}
+      </FullScreenContainer>
     </ThemeProvider>
   );
 };

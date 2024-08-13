@@ -6,7 +6,7 @@ export const customErrorMessages: Record<string, string> = {
 };
 
 export const DefaultFeedbackWidgetProps = {
-  position: { bottom: "20px", right: "20px" },
+  position: { bottom: 20, right: 20 },
   requiredFields: ["name", "email", "feedback"],
   optionalFields: ["rating"],
   theme: "light",
@@ -25,9 +25,11 @@ export const DefaultFeedbackWidgetProps = {
   widgetOptions: {
     showTitle: true,
     showDescription: true,
+    height: 450,
     width: 300,
     fontSize: 14,
   },
+  draggable: false,
 };
 
 export const wait = (ms: number) =>
