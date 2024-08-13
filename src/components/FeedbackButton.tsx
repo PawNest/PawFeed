@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   FeedbackButtonContainer,
   FeedbackButton as StyledFeedbackButton,
@@ -30,11 +30,16 @@ const FeedbackButton: React.FC<FeedbackButtonProps> = ({
   onPositionChange,
 }) => {
   const buttonRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   let dragStartX: number;
   let dragStartY: number;
   let initialRight: number;
   let initialBottom: number;
+  let dragStartTime: number;
+
+  const DRAG_THRESHOLD = 5; // pixels
+  const CLICK_THRESHOLD = 200; // milliseconds
 
   const onMouseDown = (e: React.MouseEvent) => {
     if (draggable) {
@@ -43,6 +48,8 @@ const FeedbackButton: React.FC<FeedbackButtonProps> = ({
       dragStartY = e.clientY;
       initialRight = position.right;
       initialBottom = position.bottom;
+      dragStartTime = Date.now();
+      setIsDragging(false);
 
       document.addEventListener("mousemove", onMouseMove);
       document.addEventListener("mouseup", onMouseUp);
@@ -52,6 +59,14 @@ const FeedbackButton: React.FC<FeedbackButtonProps> = ({
   const onMouseMove = (e: MouseEvent) => {
     const deltaX = e.clientX - dragStartX;
     const deltaY = e.clientY - dragStartY;
+
+    if (
+      Math.abs(deltaX) > DRAG_THRESHOLD ||
+      Math.abs(deltaY) > DRAG_THRESHOLD
+    ) {
+      setIsDragging(true);
+    }
+
     const newRight = initialRight - deltaX;
     const newBottom = initialBottom - deltaY;
 
@@ -74,6 +89,21 @@ const FeedbackButton: React.FC<FeedbackButtonProps> = ({
   const onMouseUp = () => {
     document.removeEventListener("mousemove", onMouseMove);
     document.removeEventListener("mouseup", onMouseUp);
+
+    const dragEndTime = Date.now();
+    const dragDuration = dragEndTime - dragStartTime;
+
+    if (!isDragging && dragDuration < CLICK_THRESHOLD) {
+      setIsOpen(true);
+    }
+
+    setIsDragging(false);
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (!draggable) {
+      setIsOpen(true);
+    }
   };
 
   const button = (
@@ -81,7 +111,6 @@ const FeedbackButton: React.FC<FeedbackButtonProps> = ({
       ref={buttonRef}
       position={position}
       isDraggable={draggable}
-      onMouseDown={onMouseDown}
     >
       {tooltipOptions.showTooltip ? (
         <TooltipComponent
@@ -90,17 +119,15 @@ const FeedbackButton: React.FC<FeedbackButtonProps> = ({
           fontSize={tooltipOptions.tooltipFontSize}
         >
           <StyledFeedbackButton
-            onClick={() => setIsOpen(true)}
+            onClick={handleClick}
+            onMouseDown={onMouseDown}
             size={buttonOptions.size}
           >
             Feedback
           </StyledFeedbackButton>
         </TooltipComponent>
       ) : (
-        <StyledFeedbackButton
-          onClick={() => setIsOpen(true)}
-          size={buttonOptions.size}
-        >
+        <StyledFeedbackButton onClick={handleClick} size={buttonOptions.size}>
           Feedback
         </StyledFeedbackButton>
       )}
