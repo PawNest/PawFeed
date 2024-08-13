@@ -8,10 +8,8 @@ export interface FeedbackWidgetProps {
   };
   onSubmit?: (data: FeedbackData) => Promise<void>;
   position?: {
-    //top?: string;
     right: number;
     bottom: number;
-    //left?: string;
   };
   title?: string;
   description?: string;

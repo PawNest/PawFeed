@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   WidgetContainer,
+  ThankYouContainer,
+  Footer,
+  FullScreenContainer,
+  WidgetHeader,
+} from "../styles/widget";
+
+import {
   Form,
   Input,
   TextArea,
   SubmitButton,
   CancelButton,
   ButtonContainer,
-  ThankYouContainer,
-  FeedbackButtonContainer,
-  Footer,
-  FullScreenContainer,
-  DraggableWrapper,
-} from "../styles/styles";
+} from "../styles/form";
 import StarRating from "./StarRating";
 import * as z from "zod";
 import { ThemeProvider } from "styled-components";
@@ -296,17 +298,12 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
   return (
     <ThemeProvider theme={currentTheme}>
       <FullScreenContainer>
-        {/* <Draggable position={dragPosition} onDrag={handleDrag} bounds="parent">
-          <DraggableWrapper> */}
         {isOpen ? (
           <WidgetContainer
-            ref={widgetRef}
             position={widgetPosition}
             height={widgetOptions.height}
             width={widgetOptions.width}
             fontSize={widgetOptions.fontSize}
-            isDraggable={draggable}
-            onMouseDown={onMouseDown}
           >
             {showThankYou ? (
               <ThankYouContainer>
@@ -317,20 +314,26 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
               </ThankYouContainer>
             ) : (
               <Form onSubmit={handleSubmit}>
-                {widgetOptions.showTitle ? (
-                  <h2 style={{ color: currentTheme.textColor }}>
-                    {props.title
-                      ? props.title
-                      : DefaultFeedbackWidgetProps.title}
-                  </h2>
-                ) : null}
-                {widgetOptions.showDescription ? (
-                  <p style={{ color: currentTheme.textColor }}>
-                    {props.description
-                      ? props.description
-                      : DefaultFeedbackWidgetProps.description}
-                  </p>
-                ) : null}
+                <WidgetHeader
+                  ref={widgetRef}
+                  onMouseDown={onMouseDown}
+                  isDraggable={draggable}
+                >
+                  {widgetOptions.showTitle ? (
+                    <h2 style={{ color: currentTheme.textColor }}>
+                      {props.title
+                        ? props.title
+                        : DefaultFeedbackWidgetProps.title}
+                    </h2>
+                  ) : null}
+                  {widgetOptions.showDescription ? (
+                    <p style={{ color: currentTheme.textColor }}>
+                      {props.description
+                        ? props.description
+                        : DefaultFeedbackWidgetProps.description}
+                    </p>
+                  ) : null}
+                </WidgetHeader>
                 {requiredFields.includes("name") ||
                 optionalFields.includes("name") ? (
                   <>
@@ -413,36 +416,7 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
             draggable={draggable}
             onPositionChange={handlePositionChange}
           />
-          // <FeedbackButtonContainer
-          //   position={currentPosition}
-          //   isDraggable={draggable}
-          //   onMouseDown={onMouseDown}
-          // >
-          //   {tooltipOptions.showTooltip ? (
-          //     <TooltipComponent
-          //       text={tooltipOptions.tooltipMessage}
-          //       position={tooltipOptions.position}
-          //       fontSize={tooltipOptions.tooltipFontSize}
-          //     >
-          //       <FeedbackButton
-          //         onClick={() => setIsOpen(true)}
-          //         size={buttonOptions.size}
-          //       >
-          //         Feedback
-          //       </FeedbackButton>
-          //     </TooltipComponent>
-          //   ) : (
-          //     <FeedbackButton
-          //       onClick={() => setIsOpen(true)}
-          //       size={buttonOptions.size}
-          //     >
-          //       Feedback
-          //     </FeedbackButton>
-          //   )}
-          // </FeedbackButtonContainer>
         )}
-        {/* </DraggableWrapper>
-        </Draggable> */}
       </FullScreenContainer>
     </ThemeProvider>
   );

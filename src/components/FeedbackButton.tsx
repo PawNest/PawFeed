@@ -2,24 +2,9 @@ import React, { useState, useRef } from "react";
 import {
   FeedbackButtonContainer,
   FeedbackButton as StyledFeedbackButton,
-} from "../styles/styles";
+} from "../styles/button";
 import { TooltipComponent } from "./ToolTipComponent";
-
-interface FeedbackButtonProps {
-  position: { bottom: number; right: number };
-  buttonOptions: {
-    size: string | number;
-  };
-  tooltipOptions: {
-    showTooltip: boolean;
-    position: string;
-    tooltipMessage: string;
-    tooltipFontSize: number;
-  };
-  setIsOpen: (isOpen: boolean) => void;
-  draggable: boolean;
-  onPositionChange: (bottom: number, right: number) => void;
-}
+import { FeedbackButtonProps } from "../types/FeedbackButtonProps";
 
 const FeedbackButton: React.FC<FeedbackButtonProps> = ({
   position,
