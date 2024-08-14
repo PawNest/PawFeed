@@ -5,6 +5,9 @@ import {
   Footer,
   FullScreenContainer,
   WidgetHeader,
+  WidgetTitle,
+  WidgetDescription,
+  ThankYouTitle,
 } from "../styles/widget";
 
 import {
@@ -139,100 +142,96 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
           >
             {showThankYou ? (
               <ThankYouContainer>
-                <h2 style={{ color: currentTheme.textColor }}>
-                  Thank you for your feedback!
-                </h2>
+                <ThankYouTitle>Thank you for your feedback!</ThankYouTitle>
                 <SubmitButton onClick={closeForm}>Close</SubmitButton>
               </ThankYouContainer>
             ) : (
-              <Form onSubmit={handleSubmit}>
+              <>
                 <WidgetHeader
                   ref={widgetRef}
                   onMouseDown={onMouseDown}
                   isDraggable={props.draggable}
                 >
                   {props.widgetOptions?.showTitle ? (
-                    <h2 style={{ color: currentTheme.textColor }}>
-                      {props.title}
-                    </h2>
+                    <WidgetTitle>{props.title}</WidgetTitle>
                   ) : null}
                   {props.widgetOptions?.showDescription ? (
-                    <p style={{ color: currentTheme.textColor }}>
-                      {props.description}
-                    </p>
+                    <WidgetDescription>{props.description}</WidgetDescription>
                   ) : null}
                 </WidgetHeader>
-                {props.requiredFields?.includes("name") ||
-                props.optionalFields?.includes("name") ? (
-                  <>
-                    <Input
-                      type="text"
-                      name="name"
-                      placeholder="Enter your name"
-                      value={formData.name || ""}
-                      onChange={handleInputChange}
-                    />
-                    {errors.name && (
-                      <div style={{ color: "red", marginBottom: "10px" }}>
-                        {errors.name}
-                      </div>
-                    )}
-                  </>
-                ) : null}
-                {props.requiredFields?.includes("email") ||
-                props.optionalFields?.includes("email") ? (
-                  <>
-                    <Input
-                      type="email"
-                      name="email"
-                      placeholder="Enter your email"
-                      value={formData.email || ""}
-                      onChange={handleInputChange}
-                    />
-                    {errors.email && (
-                      <div style={{ color: "red", marginBottom: "10px" }}>
-                        {errors.email}
-                      </div>
-                    )}
-                  </>
-                ) : null}
-                {props.requiredFields?.includes("feedback") ||
-                props.optionalFields?.includes("feedback") ? (
-                  <>
-                    <TextArea
-                      name="feedback"
-                      placeholder="Share your thoughts and suggestions"
-                      value={formData.feedback}
-                      onChange={handleInputChange}
-                    />
-                    {errors.feedback && (
-                      <div style={{ color: "red", marginBottom: "10px" }}>
-                        {errors.feedback}
-                      </div>
-                    )}
-                  </>
-                ) : null}
-                {props.requiredFields?.includes("rating") ||
-                props.optionalFields?.includes("rating") ? (
-                  <>
-                    <StarRating
-                      rating={formData.rating ? formData.rating : 0}
-                      onRatingChange={handleRatingChange}
-                    />
-                    {errors.rating && (
-                      <div style={{ color: "red", marginBottom: "10px" }}>
-                        {errors.rating}
-                      </div>
-                    )}
-                  </>
-                ) : null}
-                <ButtonContainer>
-                  <CancelButton type="button" onClick={closeForm}>
-                    Cancel
-                  </CancelButton>
-                  <SubmitButton type="submit">Submit Feedback</SubmitButton>
-                </ButtonContainer>
-              </Form>
+                <Form onSubmit={handleSubmit}>
+                  {props.requiredFields?.includes("name") ||
+                  props.optionalFields?.includes("name") ? (
+                    <>
+                      <Input
+                        type="text"
+                        name="name"
+                        placeholder="Enter your name"
+                        value={formData.name || ""}
+                        onChange={handleInputChange}
+                      />
+                      {errors.name && (
+                        <div style={{ color: "red", marginBottom: "10px" }}>
+                          {errors.name}
+                        </div>
+                      )}
+                    </>
+                  ) : null}
+                  {props.requiredFields?.includes("email") ||
+                  props.optionalFields?.includes("email") ? (
+                    <>
+                      <Input
+                        type="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        value={formData.email || ""}
+                        onChange={handleInputChange}
+                      />
+                      {errors.email && (
+                        <div style={{ color: "red", marginBottom: "10px" }}>
+                          {errors.email}
+                        </div>
+                      )}
+                    </>
+                  ) : null}
+                  {props.requiredFields?.includes("feedback") ||
+                  props.optionalFields?.includes("feedback") ? (
+                    <>
+                      <TextArea
+                        name="feedback"
+                        placeholder="Share your thoughts and suggestions"
+                        value={formData.feedback}
+                        onChange={handleInputChange}
+                      />
+                      {errors.feedback && (
+                        <div style={{ color: "red", marginBottom: "10px" }}>
+                          {errors.feedback}
+                        </div>
+                      )}
+                    </>
+                  ) : null}
+                  {props.requiredFields?.includes("rating") ||
+                  props.optionalFields?.includes("rating") ? (
+                    <>
+                      <StarRating
+                        rating={formData.rating ? formData.rating : 0}
+                        onRatingChange={handleRatingChange}
+                      />
+                      {errors.rating && (
+                        <div style={{ color: "red", marginBottom: "10px" }}>
+                          {errors.rating}
+                        </div>
+                      )}
+                    </>
+                  ) : null}
+                  <ButtonContainer>
+                    <CancelButton type="button" onClick={closeForm}>
+                      Cancel
+                    </CancelButton>
+                    <SubmitButton type="submit">Submit Feedback</SubmitButton>
+                  </ButtonContainer>
+                </Form>
+              </>
             )}
             <Footer
               href="https://github.com/PawNest/PawFeed"

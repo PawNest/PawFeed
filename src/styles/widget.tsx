@@ -14,6 +14,20 @@ export const WidgetHeader = styled.div<{ isDraggable?: boolean }>`
   cursor: ${(props) => (props.isDraggable ? "move" : "default")};
 `;
 
+export const WidgetTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0.5em 0;
+  color: ${(props) => props.theme.textColor};
+  text-align: "center";
+`;
+
+export const WidgetDescription = styled.p`
+  margin: 1em 0;
+  color: ${(props) => props.theme.textColor};
+  text-align: "center";
+`;
+
 export const WidgetContainer = styled.div.attrs<WidgetContainerProps>(
   (props) => ({
     style: {
@@ -43,6 +57,14 @@ export const ThankYouContainer = styled.div`
   align-items: center;
   justify-content: center;
   height: "auto";
+`;
+
+export const ThankYouTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0.5em 0;
+  color: ${(props) => props.theme.textColor};
+  text-align: "center";
 `;
 
 export const Footer = styled.a`
