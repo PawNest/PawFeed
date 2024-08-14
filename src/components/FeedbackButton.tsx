@@ -2,24 +2,9 @@ import React, { useState, useRef } from "react";
 import {
   FeedbackButtonContainer,
   FeedbackButton as StyledFeedbackButton,
-} from "../styles/styles";
+} from "../styles/button";
 import { TooltipComponent } from "./ToolTipComponent";
-
-interface FeedbackButtonProps {
-  position: { bottom: number; right: number };
-  buttonOptions: {
-    size: string | number;
-  };
-  tooltipOptions: {
-    showTooltip: boolean;
-    position: string;
-    tooltipMessage: string;
-    tooltipFontSize: number;
-  };
-  setIsOpen: (isOpen: boolean) => void;
-  draggable: boolean;
-  onPositionChange: (bottom: number, right: number) => void;
-}
+import { FeedbackButtonProps } from "../types/FeedbackButtonProps";
 
 const FeedbackButton: React.FC<FeedbackButtonProps> = ({
   position,
@@ -112,7 +97,7 @@ const FeedbackButton: React.FC<FeedbackButtonProps> = ({
       position={position}
       isDraggable={draggable}
     >
-      {tooltipOptions.showTooltip ? (
+      {tooltipOptions?.showTooltip ? (
         <TooltipComponent
           text={tooltipOptions.tooltipMessage}
           position={tooltipOptions.position}
@@ -121,13 +106,13 @@ const FeedbackButton: React.FC<FeedbackButtonProps> = ({
           <StyledFeedbackButton
             onClick={handleClick}
             onMouseDown={onMouseDown}
-            size={buttonOptions.size}
+            size={buttonOptions?.size}
           >
             Feedback
           </StyledFeedbackButton>
         </TooltipComponent>
       ) : (
-        <StyledFeedbackButton onClick={handleClick} size={buttonOptions.size}>
+        <StyledFeedbackButton onClick={handleClick} size={buttonOptions?.size}>
           Feedback
         </StyledFeedbackButton>
       )}

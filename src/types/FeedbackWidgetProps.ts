@@ -1,24 +1,25 @@
 import { ConnectorConfig } from "./ConnectorConfig";
 import { FeedbackData } from "./Feedback";
 
-export interface FeedbackWidgetProps {
+export interface FeedbackFormProps {
   connector?: {
     name: string;
     config: ConnectorConfig;
   };
   onSubmit?: (data: FeedbackData) => Promise<void>;
-  position?: {
-    //top?: string;
-    right: number;
-    bottom: number;
-    //left?: string;
-  };
-  title?: string;
-  description?: string;
   name?: string;
   email?: string;
   requiredFields?: Array<"name" | "email" | "feedback" | "rating">;
   optionalFields?: Array<"name" | "email" | "feedback" | "rating">;
+}
+
+export interface FeedbackWidgetProps extends FeedbackFormProps {
+  position?: {
+    right?: number;
+    bottom?: number;
+  };
+  title?: string;
+  description?: string;
   theme?: "light" | "dark" | "system";
   buttonOptions?: {
     size?: "small" | "medium" | "large" | number;
