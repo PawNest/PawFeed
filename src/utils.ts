@@ -5,6 +5,7 @@ export const customErrorMessages: Record<string, string> = {
   "Invalid email": "Please enter a valid email address.",
   "String must contain at most 500 character(s)":
     "Please Keep it brief! Max 500 characters allowed.",
+  "Number must be greater than or equal to 1": "Please provide a rating.",
 };
 
 export const defaultFeedbackWidgetProps: FeedbackWidgetProps = {

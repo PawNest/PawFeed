@@ -42,7 +42,7 @@ export const ThankYouContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: "auto";
 `;
 
 export const Footer = styled.a`

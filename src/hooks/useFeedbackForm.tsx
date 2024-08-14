@@ -26,7 +26,7 @@ export const useFeedbackForm = (
       : z.string().optional(),
     email: props.requiredFields?.includes("email")
       ? z.string().email()
-      : z.string().email().optional(),
+      : z.string().optional(),
     feedback: props.requiredFields?.includes("feedback")
       ? z.string().min(1).max(500)
       : z.string().optional(),

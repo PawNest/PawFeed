@@ -214,10 +214,17 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = (
                 ) : null}
                 {props.requiredFields?.includes("rating") ||
                 props.optionalFields?.includes("rating") ? (
-                  <StarRating
-                    rating={formData.rating ? formData.rating : 0}
-                    onRatingChange={handleRatingChange}
-                  />
+                  <>
+                    <StarRating
+                      rating={formData.rating ? formData.rating : 0}
+                      onRatingChange={handleRatingChange}
+                    />
+                    {errors.rating && (
+                      <div style={{ color: "red", marginBottom: "10px" }}>
+                        {errors.rating}
+                      </div>
+                    )}
+                  </>
                 ) : null}
                 <ButtonContainer>
                   <CancelButton type="button" onClick={closeForm}>
