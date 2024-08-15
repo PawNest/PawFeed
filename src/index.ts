@@ -1,2 +1,2 @@
 import FeedbackWidget from "./components/FeedbackWidget";
-export default FeedbackWidget;
+export { FeedbackWidget as PawFeed };
