@@ -48,12 +48,12 @@ function App() {
            name: "slack",
            config: {
              slack: {
-               channel: <slack-channel-id>,
-               token: <slack-token>,
+               channel: <your-slack-channel-id>,
+               token: <your-slack-token>,
              },
            },
         }}
-        theme="dark"
+        theme="light"
         position={{ bottom: 20, right: 20 }}
       />
     </div>
@@ -65,7 +65,7 @@ export default App;
 
 ## Customization
 
-You can customize the PawFeed widget by passing additional props for colors, text, and more. Here’s an example of how to fetch a unique look with custom styles:
+You can customize the PawFeed widget by passing additional props. Here’s an example of how to fetch a unique look with custom styles:
 
 ```
 <PawFeed
@@ -101,6 +101,60 @@ You can customize the PawFeed widget by passing additional props for colors, tex
     optionalFields={["rating"]}
     />
 </div>
+```
+
+Full list of props
+
+```
+{
+  // define initial position of the feedback button
+  position?: {
+    right?: number;
+    bottom?: number;
+  };
+  // title to be displayed inside the widget
+  title?: string;
+  // description to be displayed inside the widget
+  description?: string;
+  // theme of the button and widget
+  // we will support custom themes soon.
+  theme?: "light" | "dark" | "system";
+  // size of the feedback button, default is small
+  buttonOptions?: {
+    size?: "small" | "medium" | "large" | number;
+  };
+  tooltipOptions?: {
+    showTooltip?: boolean;
+    position?: "top" | "bottom" | "left" | "right";
+    tooltipMessage?: string;
+    tooltipFontSize?: number;
+  };
+  widgetOptions?: {
+    showTitle?: boolean;
+    showDescription?: boolean;
+    height?: number;
+    width?: number;
+    fontSize?: number;
+  };
+  draggable?: boolean;
+  // we currently support slack and discord as connectors
+  connector?: {
+    name: string;
+    config: ConnectorConfig;
+  };
+  // define your own onSubmit function.
+  // with this all feedback data submitted with go through your custom logic.
+  onSubmit?: (data: FeedbackData) => Promise<void>;
+  // auto fill name and email of your user so they don't have to repeatedly do that
+  name?: string;
+  email?: string;
+  // you can specify required fields and optional fields.
+  // if name email and feedback are required but rating is optional, feedback can be submitted with no rating
+  // you can also use these props to decide which fields to display in the form
+  // requiredFields={["name", "email", "feedback"]} ; optionalFields={[]} will only show name email and feedback in the form
+  requiredFields?: Array<"name" | "email" | "feedback" | "rating">;
+  optionalFields?: Array<"name" | "email" | "feedback" | "rating">;
+}
 ```
 
 ## Contributing
