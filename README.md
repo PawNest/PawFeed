@@ -2,6 +2,8 @@
 
 Feedback that fetches results! 🐾
 
+https://www.npmjs.com/package/pawfeed
+
 ## Why PawFeed?
 
 **PawFeed** is on a mission to make feedback collection cool again. We believe that gathering feedback should be as effortless and enjoyable as a game of fetch with your dog (woof!). That’s why we created an open-source, easy-to-use feedback collection widget for React applications. With PawFeed, you can start collecting feedback in seconds, without the hassle.
