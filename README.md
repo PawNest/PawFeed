@@ -19,6 +19,8 @@ And the best part? You remain in full control of your data throughout the proces
 
 Join us in making feedback collection a positive, productive experience. Let’s fetch the insights that will help your app thrive!
 
+https://github.com/user-attachments/assets/86ff5a0c-2dd5-4d61-ba6a-5cc2e3e7a50a
+
 ## Features
 
 - 🐾 **Drag-and-Drop Configurable**: Easily customizable feedback forms with drag-and-drop functionality, fetching you the results you need.
