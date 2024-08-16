@@ -44,6 +44,7 @@ export const WidgetContainer = styled.div.attrs<WidgetContainerProps>(
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -59,10 +60,9 @@ export const ThankYouContainer = styled.div`
   height: "auto";
 `;
 
-export const ThankYouTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 0.5em 0;
+export const ThankYouTitle = styled.p`
+  font-size: 1rem;
+  margin: 1em 0;
   color: ${(props) => props.theme.textColor};
   text-align: "center";
 `;
