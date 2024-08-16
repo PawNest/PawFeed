@@ -42,7 +42,7 @@ Here’s a simple example of how to integrate PawFeed into your React applicatio
 
 ```
 import React from 'react';
-import { PawFeed } from 'pawfeed';
+import { PawFeed } from "pawfeed/dist";
 
 function App() {
   return (
