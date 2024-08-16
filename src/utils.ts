@@ -28,7 +28,7 @@ export const defaultFeedbackWidgetProps: FeedbackWidgetProps = {
   widgetOptions: {
     showTitle: true,
     showDescription: true,
-    height: 450,
+    height: 500,
     width: 350,
     fontSize: 14,
   },
