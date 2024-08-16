@@ -157,6 +157,41 @@ Full list of props
 }
 ```
 
+## Connectors
+
+At present the package two connectors otb. By configuring any one of them you can start recieving user feedbacks within seconds
+
+### Slack
+
+```
+connector={{
+    name: "slack",
+    config: {
+      slack: {
+        channel: <your-slack-channel-id>,
+        token: <your-slack-token>,
+      },
+    },
+}}
+```
+
+Get the slack channel id/name and slack token with necessary oauth permissions to start sending to slack: https://api.slack.com/messaging/sending
+
+### Discord
+
+```
+connector={{
+    name: "discord",
+    config: {
+        discord: {
+            webhookUrl: "https://discord.com/api/webhooks/your-webhook-url",
+        },
+    },
+}}
+```
+
+you can obtain your webhook url by following: https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks
+
 ## Contributing
 
 We welcome contributions to PawFeed! If you have ideas for new features or have found a bug, feel free to open an issue or submit a pull request. Together, we can fetch even better results!

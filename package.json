@@ -1,6 +1,7 @@
 {
   "name": "pawfeed",
   "version": "1.0.0",
+  "description": "A highly customizable and pluggable feedback widget for React applications.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -13,9 +14,8 @@
     "widget",
     "typescript"
   ],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "Sajal Jain <jsajal1993@gmail.com>",
+  "license": "MIT",
   "peerDependencies": {
     "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0"
